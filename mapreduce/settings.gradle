@@ -15,4 +15,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'BDE-mr-surname1-surname2'
+rootProject.name = 'BDE-mr-Ventani-Venturi'

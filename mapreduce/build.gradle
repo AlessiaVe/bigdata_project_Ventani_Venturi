@@ -40,6 +40,9 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+
+    // CSV dependency
+    compile 'com.opencsv:opencsv:5.2'
 }
 
 // tasks to run by executing ./gradlew
