@@ -36,7 +36,7 @@ public class CrimesCountDistrict {
 		) throws IOException, InterruptedException {
 			{
 				String[] csv = value.toString().split(";");
-				discrict_primary_type.set(csv[11]+"__"+csv[6]+"__");
+				discrict_primary_type.set(csv[11]+"__"+csv[6]+"__"+csv[4]+"__");
 				// delete some error in the data
 				if(!csv[11].equals("true") && !csv[11].equals("false") && !csv[11].equals("District") && !csv[11].contains(" ")  && !csv[6].contains("\"THEFT BY LESSEE")) {
 					context.write(discrict_primary_type, one);
@@ -75,7 +75,7 @@ public class CrimesCountDistrict {
 		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 			String[] values = value.toString().split("__");
 			description.set(values[1]);
-			compositeKey.set(values[0], Integer.parseInt(values[2].replaceAll("\\s","")));
+			compositeKey.set(values[0], Integer.parseInt(values[3].replaceAll("\\s","")));
 			context.write(compositeKey, description);
 		}
 

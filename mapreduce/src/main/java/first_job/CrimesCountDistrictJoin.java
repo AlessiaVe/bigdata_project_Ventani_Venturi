@@ -227,7 +227,7 @@ public class CrimesCountDistrictJoin {
 		// set separator from key and value in line of the file
 		joinConf.set("mapreduce.input.keyvaluelinerecordreader.key.value.separator", ";");
 		Job joinJob = Job.getInstance(joinConf, "Join job");
-		joinJob.setJarByClass(JoinJobPartial.class);
+		joinJob.setJarByClass(CrimesCountDistrictJoin.class);
 		joinJob.setMapOutputKeyClass(Text.class);
 		joinJob.setMapOutputValueClass(Text.class);
 
