@@ -2,13 +2,16 @@
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \usepackage[pdftex]{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{listings}
 
     
-\title{\textbf{Report on Big Data project: \\(short subtitle)}}
+\title{\textbf{Report del progetto di Big Data: \\ analisi dei crimini nella città di Chicago}}
 
 \author{
-	Name Surname - Mat. 004815\\
-	Name Surname - Mat. 162342}
+	Alessia Ventani - Mat. 901809\\
+	Simone Venturi - Mat. }
 	
 \date{\today}
 
@@ -57,8 +60,8 @@ Appreciated aspects.
 
 
 
-\section{Introduction}
-\subsection{Dataset description}
+\section{Introduzione}
+\subsection{Descrizione del dataset}
 
 Please provide:
 \begin{itemize}
@@ -67,18 +70,79 @@ Please provide:
 \item Direct links to the downloaded files, especially if more than one files are available in the previous link (e.g., \url{https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2017-01.csv}).
 \end{itemize}
 
-\subsubsection{File description}
+Per questo elaborato si è deciso di utilizzare gli open data che la città di Chicago rende accessibili on-line. 
+Fra i vari dataset presenti, ci si è concentrati su quello riportante i crimini commessi nella città Chicago dal 2001 ad oggi, aggiornati 
+a sette giorni precedenti la data del download. I dati sono estratti dal CLEAR, acronimo di Citizen Law Enforcement Analysis and Reporting, 
+del dipartimento di polizia della città. Per motivi ovvi di privacy, i nomi propri sono omessi e gli indirizzi non riconducono 
+ad una specifica posizione geografica ma ad un'area, più o meno grande in base al grado di granularità del campo, della città. \\
+I dati utilizzati sono scaricabili ai seguenti link:
+\begin{itemize}
+\item elenco dei crimini registrati: \url{https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2}
+\item elenco dei codici univoci di report dei crimini dello stato dell'Illinois: \url{https://data.cityofchicago.org/Public-Safety/Chicago-Police-Department-Illinois-Uniform-Crime-R/c7ck-438e} 
+\end{itemize}
+Dai link riportati è possibile scaricare i dati premendo sul tasto Export e scegliendo il formato "CSV Excel for Europe".
+ 
+\subsubsection{Descrizione dei file}
 
 For each file, briefly indicated the available data and the fields used for the analyses; examples are welcome.
 
 
-\section{Data preparation}
+L'analisi si basa sull'utilizzo di un unico file csv di partenza formato con i dati dei crimini registrati a Chicago.
+Nella tabella sono presenti 22 colonne che riportano informazioni di varie categorie: le informazioni riguardanti il tipo di codice, la sua collocazione temporale e spaziale (comprese le coordinate), se è stato effettuato un arresto o meno e se il crimine è domestico. Di queste colonne sono stati considerati solo alcuni campi.\\
+ Per il primo job sono stati utilizzati:
+\begin{itemize}
+\item IUCR: codice univoco di identificazione di un crimine per lo stato dell'Illinois;
+\item Description: breve descrizione del crimine riportato;
+\item District: codice corrispondente al distretto di polizia in cui è avvenuto il crimine.
+\end{itemize}
+Per la seconda elaborazione ci si è concentrati su:
+\begin{itemize}
+\item IUCR: codice univoco di identificazione di un crimine per lo stato dell'Illinois;
+\item Description: breve descrizione del crimine riportato;
+\item Arrest: booleano che indica se per il crimine è stato effettuato un arresto o meno;
+\item Year: anno in cui è avvenuto il crimine.
+\end{itemize}
 
+Un esempio di dati riportati è:\\
+IUCR Description District Arrest Year \\
+0460   SIMPLE      006    False  2020
+
+
+
+\section{Preparazione dei dati}
 Please provide:
 \begin{itemize}
 \item The paths to each file on HDFS and/or its corresponding location in Hive (database and table); consider relying on the structured data lake organization.
 \item A subsection with details on the pre-processing of the data (only necessary if the data is dirty and/or it contains a significant amount of useless information).
 \end{itemize}
+
+I dati considerati non hanno avuto bisogno di operazioni di pre-elaborazione complesse data la loro natura. Si noti però che all'interno del dataset, essendo compilato manualmente, potrebbero esserci degli errori accidentali nei dati ma questo non costituisce un grosso problema per le elaborazioni che si intendono eseguire. \\
+
+Per poter effettuare dei confronti nel primo job, vedi descrizione nella sezione successiva, sono state preparate due versioni del file inziale.
+La prima costituisce il file scaricato dal sito nella sua versione integrale mentre per la seconda si è deciso di dividere la tabella iniziale in due:
+\begin{itemize}
+\item la prima comprende tutti i campi ad eccezione di "Primary Type" e "Description". Per ottenere questo file è stato fatto eseguire il seguente codice spark:
+\begin{lstlisting}
+
+spark.read.format("csv")
+  .option("sep", ";").option("header", "true")
+  .option("mode", "DROPMALFORMED")
+  .load(<path to input file>)
+  .drop("Primary Type","Description").coalesce(1)
+  .write.format("com.databricks.spark.csv")
+  .option("sep", ";").option("header", "true")
+  .save(<path to output file>)
+
+\end{lstlisting}
+
+\item la seconda riporta i campi "IUCR","Primary Type" e "Description". In questo caso non è stato necessario elaborare il file di partenza ,a è stato semplicemente scaricato l'elenco dei codici univoci di report dei crimini dello stato dell'Illinois. In quest'ultimo però alcuni codice IUCR non presentavano lo zero iniziare e quindi per farli coincidere con quelli presenti nella prima si è dovuto aggiungere questa cifra, operazione effettuata manualmente dato il basso numero di record con questa caratteristica. 
+\end{itemize}
+
+Come formato si è deciso di caricare il file csv e utilizzare come separatore il simbolo ; per facilitare le operazioni nel paradigma map reduce.
+
+I file sono stati caricati in hdfs e sono raggiungibili a:
+%TODO
+
 
 
 \section{Jobs}
