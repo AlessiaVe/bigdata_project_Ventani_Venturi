@@ -5,6 +5,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[italian]{babel}
 \usepackage{listings}
+\usepackage{xfrac}
 
     
 \title{\textbf{Report del progetto di Big Data: \\ analisi dei crimini nella città di Chicago}}
@@ -140,14 +141,18 @@ spark.read.format("csv")
 
 Come formato si è deciso di caricare il file csv e utilizzare come separatore il simbolo ; per facilitare le operazioni nel paradigma map reduce.
 
-I file sono stati caricati in hdfs e sono raggiungibili a:
-%TODO
+I file sono stati caricati in hdfs e sono raggiungibili nelle seguenti cartelle:
+\begin{itemize}
+\item The paths to each file on HDFS and/or its corresponding location in Hive (database and table); consider relying on the structured data lake organization.
+\item A subsection with details on the pre-processing of the data (only necessary if the data is dirty and/or it contains a significant amount of useless information).
+\end{itemize}
 
+user\/aventani\/progetto_ventani\/2\/Crimes_-_2001_to_present.csv 
 
+\section{I Job}
 
-\section{Jobs}
+Per avere un riscontro dei risultati e verificare i risultati raggiunti si è deciso di suddividere i due task fra i componenti del gruppo nella maniera seguente: il primo job è stato realizzato da Alessia Ventani in MapReduce mentre da Simone Venturi in spark, per il secondo invece sono state cambiate le tecnologie quindi Ventani lo ha realizzato in spark mentre Venturi in MapReduce.
 
-One subsection for each job.
 
 \subsection{Job \#1: short description}
 
@@ -176,5 +181,53 @@ Please provide:
 \section{Miscellaneous}
 
 If necessary, feel free to add sections to explain any other relevant information.
+
+
+
+
+
+\subsection{Job \#1: conteggio dei crimini per distretto}
+Lo scopo di questo job è quello di restituire la lista del crimini, raggruppati per distretto e per tipologia, con il relativo conteggio delle registrazioni effettuate. I record risultanti devono essere ordinati in ordine crescente per numero di distretto e in ordine decrescente per totale di crimini registrati. Dunque un esempio di del risultato che deve essere ottenuto è:
+\begin{lstlisting}
+001	FROM BUILDING 30616
+001	$500 AND UNDER 30127
+...
+002	$500 AND UNDER 29150
+002	SIMPLE 28368
+...
+\end{lstlisting}
+Dove il primo codice rappresenta il codice univoco del distretto del polizia dove è stato registrato il crimine, colonna District, la seconda parte rappresenta una breve descrizione, colonna Description, e l'ultimo numero è il totale dei crimini avvenuti in quel distretto e con quella descrizione presenti nel database.
+
+In questo task si è deciso di effettuare l'elaborazione in due modalità differenti. Nella prima si è deciso di mantene la tabella originale e raggruppare per IURC e per Description, nella seconda si è devisa la tabella originale in due, come descritto nel paragrafo "Preparazione dei dati" e effettuare le operazioni dullo IURC per poi fare in un secondo momento il join con la tabella Description.\\
+L'obbiettivo di questa doppia modalità è quello di verificare se ci possa essere o meno un miglioramento delle performance con una versione rispetto all'altra nei due paradigmi utilizzati.
+
+
+\subsubsection{MapReduce}
+L'implementazione di questo job in MapReduce è stata eseguita da Alessia Ventani.
+
+\subsubsection{Spark}
+L'implementazione di questo job in MapReduce è stata eseguita da Simone Venturi.
+
+
+\subsection{Job \#2: conteggio della percentuale di crimini con arresti}
+Lo scopo del secondo job è il calcolo della percentuale dei crimini in cui è stato effettuato un arresto rispetto al totale. In questo caso i crimini sono raggruppati per tipologia e per anno di registrazione.
+Il risultato finale in questo caso è:
+\begin{lstlisting}
+2001;THEFT/RECOVERY: TRUCK,BUS,MHOME;19.0
+2001;ARMED: OTHER FIREARM;16.0
+...
+2002;FRAUD OR CONFIDENCE GAME;14.0
+2002;THEFT/RECOVERY: CYCLE, SCOOTER, BIKE W-VIN;73.0
+...
+\end{lstlisting}
+Dove il primo numero rappresenta ovviamente l'anno di avvenimento del crimine, il secondo la descrizione, campo Description, il terzo una percentuale calcolata come
+\sfrac{\text{#totale crimini del gruppo con campo Arrest == True}}{\text{# totale crimini del gruppo}} .
+
+
+\subsubsection{MapReduce}
+L'implementazione di questo job in MapReduce è stata eseguita da Simone Venturi.
+
+\subsubsection{Spark}
+L'implementazione di questo job in MapReduce è stata eseguita da Alessia Ventani.
 
 \end{document}
