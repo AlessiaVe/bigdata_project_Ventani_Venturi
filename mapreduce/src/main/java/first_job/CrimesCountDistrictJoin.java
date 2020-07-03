@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import java.io.StringReader;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -20,7 +21,6 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import java.util.ArrayList;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 
@@ -174,8 +174,8 @@ public class CrimesCountDistrictJoin {
 		public void reduce(CompositeKey key, Iterable<Text> descriptions, Context context) throws IOException, InterruptedException {
 
 			for (Text description : descriptions){
-				outputKey.set(key.district);
-				outputValue.set(description+" "+key.count);
+				outputKey.set(key.district+"@");
+				outputValue.set(description+"@"+key.count);
 				context.write(outputKey, outputValue);
 			}
 		}

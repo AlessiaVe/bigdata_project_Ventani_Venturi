@@ -91,8 +91,8 @@ public class CrimesCountDistrict {
 		public void reduce(CompositeKey key, Iterable<Text> descriptions, Context context) throws IOException, InterruptedException {
 
 			for (Text description : descriptions) {
-				outputKey.set(key.district);
-				outputValue.set(description+" "+key.count);
+				outputKey.set(key.district+"@");
+				outputValue.set(description+"@"+key.count);
 				context.write(outputKey, outputValue);
 			}
 		}
