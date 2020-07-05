@@ -174,9 +174,10 @@ L'implementazione di questo job in MapReduce è stata eseguita da Alessia Ventan
 Il codice prodotto nel paradigma MapReduce, presente nella classe CrimesCountDistrict, può essere eseguito, dopo essere stato compilato, con il seguente comando:
 \begin{lstlisting}
 hadoop jar BDE-mr-Ventani-Venturi.jar CrimesCountDistrict 
-Crimes_-_2001_to_present.csv output-conteggio  output
+Crimes_-_2001_to_present.csv output-conteggio  
+output-count-no-join
 \end{lstlisting}
-Da questo è possibile visualizzare in un solo colpo i file che costituisco l'input e l'output di questo job. L'unico file di input è CrimesCountDistrictCrimes\_-\_2001\_to\_present.csv che, come detto in precedenza, rappresenta la tabella completa dei crimini dal 2001 ad oggi della città ci Chicago. I percorsi che costituiscono i parametri 1 e 2 del comando sono i due file di output: il primo contiene il risultato intermedio della conta del numero totale di crimini commessi in un distretto e di un determinato tipo, il secondo è il risultato finale del job ed e l'ordinamento degli item precedenti.
+Da questo è possibile visualizzare in un solo colpo i file che costituisco l'input e l'output di questo job. L'unico file di input è CrimesCountDistrictCrimes\_-\_2001\_to\_present.csv che, come detto in precedenza, rappresenta la tabella completa dei crimini dal 2001 ad oggi della città ci Chicago. I percorsi che costituiscono i parametri 1 e 2 del comando sono i due file di output: il primo contiene il risultato intermedio della conta del numero totale di crimini commessi in un distretto e di un determinato tipo, il secondo è il risultato finale del job e quindi il risultato è osservabile al percorso \url{user/aventani/progetto_ventani/output-count-no-join}.
 Per ottenere il risultato voluto, si è deciso di dividere la computazione in due fasi di MapReduce. Nella prima si effettua il conteggio del totale del numero di crimini di una determinata tipologia in un distretto, successivamente, nella seconda si ordina il risultato ottenuto in ordine crescente per il codice del distretto e in ordine decrescente per numero totale di crimini.
 Di seguito una breve descrizione le fasi principali:
 \begin{itemize}
@@ -202,14 +203,27 @@ progetto_ventani/2/Crimes-2001-to-present-without-description.csv
 progetto_ventani/output-conteggio 
 progetto_ventani/2/Chicago_Police_Department_Illinois\\
 _Uniform_Crime_Reporting_IUCR.csv
-progetto_ventani/output-join   progetto_ventani/output
+progetto_ventani/output-join   
+progetto_ventani/output-count-join
 \end{lstlisting}
 
+L'output è accessibile al percorso \url{user/aventani/progetto_ventani/output-count-join} \\
 
-
-%TODO: link alla storia di YARN e
-% TODO le risorse sono il numero di job map e di reduce instanziati per job + tempi (prendili dall'esecuzione)
-
+I file con i log di esecuzione di YARN, per le due versioni, possono essere analizzati con i seguenti comandi:
+\begin{itemize}
+\item per l'elaborazione senza join: 
+\begin{lstlisting}
+yarn logs -applicationId application_1583679666662_3991
+yarn logs -applicationId application_1583679666662_3992
+\end{lstlisting}
+\item per l'elaborazione con join:
+\begin{lstlisting}
+yarn logs -applicationId application_1583679666662_3993
+yarn logs -applicationId application_1583679666662_3994
+yarn logs -applicationId application_1583679666662_3995
+\end{lstlisting}
+\end{itemize}
+Le risorse utilizzate sono state riportate nei file count_crimes_no_join e count_crimes_join presenti nella cartella /mapreduce/log del progetto.
 
 \subsubsection{Spark}
 L'implementazione di questo job in MapReduce è stata eseguita da Simone Venturi.
@@ -270,10 +284,10 @@ Il comando per provare ad eseguire l'elaborazione è:
 spark2-submit --class PercentageArrestedCrimes 
 BDE-spark-Ventani-Venturi.jar 
 "/user/aventani/progetto_ventani/2/Crimes_-_2001_to_present.csv" 
-"/user/aventani/progetto_ventani/percentage_crimes_with_arrest_by_year"
+"/user/aventani/progetto_ventani/percentage-count"
 \end{lstlisting}
 
-Dal comando precedente si può notare come questo job abbia un solo file di input, rappresentato dal primo parametro, e un solo file di output. L'input è costituito dal file contenente l'intera tabella dei crimini senza alcuna elaborazione. L'output è costituito da un file di formato csv, con simbolo di separazione ";" che contiene le colonne "Year", "Description" e "Percentage crimes with arrest". \\
+Dal comando precedente si può notare come questo job abbia un solo file di input, rappresentato dal primo parametro, e un solo file di output. L'input è costituito dal file contenente l'intera tabella dei crimini senza alcuna elaborazione. L'output è costituito da un file di formato csv, con simbolo di separazione ";" che contiene le colonne "Year", "Description" e "Percentage crimes with arrest" mentre il risultato è accessibile al percorso \url{user/aventani/progetto_ventani/percentage-count}\\
 
 Data la struttura del file di input si è deciso di caricare i dati con il DataFrame che per sua natura si adatta ad un tipo di dato contenuto in una tabella e l'elaborazione è avvenuta con l'api di spark sql.
 L'elaborazione di compone delle seguenti fasi:
@@ -291,7 +305,10 @@ L'ottimizzazione più grossa che è stata effettuata è quella sul codice stesso
 \end{itemize}
 Dalle prove effettuate, si è potuto osservare che il tempo di esecuzione effettivo non varia di molto: nel caso migliore con 20 executors il tempo cala fino a 1.20 secondi: questo risultato è spiegabile poichè il volume di dati da elaborare non è così elevato e quindi anche ottimizzando al massimo le risorse le performance non cambiano sensibilmente. Aumentando il numero di executors invece il tempo inizia a salire: l'overhead per il coordinamento dei dati supera l'efficacia di poter parallelizzare l'elaborazione stessa. Con un database ancora più esteso probabilmente questi accorgimenti possono essere molto utili. 
 
-%TODO: link alla storia di YARN (trovati solo da copiare) e le risorse impiegate 
+Il log di questa elaborazione può essere consultato eseguendo il seguente comando:
+\begin{lstlisting}
+hdfs dfs -cat /user/spark/spark2ApplicationHistory/application_1583679666662_3996
+\end{lstlisting}
 % per le risorse prendi il DAG da interfaccia grafica
 
 

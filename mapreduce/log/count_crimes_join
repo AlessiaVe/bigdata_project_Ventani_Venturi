@@ -1,0 +1,185 @@
+File System Counters
+		FILE: Number of bytes read=275354
+		FILE: Number of bytes written=5357380
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1468442040
+		HDFS: Number of bytes written=108974
+		HDFS: Number of read operations=93
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=40
+	Job Counters 
+		Launched map tasks=11
+		Launched reduce tasks=20
+		Data-local map tasks=7
+		Rack-local map tasks=4
+		Total time spent by all maps in occupied slots (ms)=158095
+		Total time spent by all reduces in occupied slots (ms)=164567
+		Total time spent by all map tasks (ms)=158095
+		Total time spent by all reduce tasks (ms)=164567
+		Total vcore-milliseconds taken by all map tasks=158095
+		Total vcore-milliseconds taken by all reduce tasks=164567
+		Total megabyte-milliseconds taken by all map tasks=161889280
+		Total megabyte-milliseconds taken by all reduce tasks=168516608
+	Map-Reduce Framework
+		Map input records=7133542
+		Map output records=7133541
+		Map output bytes=107002974
+		Map output materialized bytes=492548
+		Input split bytes=2574
+		Combine input records=7133541
+		Combine output records=58421
+		Reduce input groups=7651
+		Reduce shuffle bytes=492548
+		Reduce input records=58421
+		Reduce output records=7651
+		Spilled Records=116842
+		Shuffled Maps =220
+		Failed Shuffles=0
+		Merged Map outputs=220
+		GC time elapsed (ms)=4935
+		CPU time spent (ms)=150790
+		Physical memory (bytes) snapshot=11448934400
+		Virtual memory (bytes) snapshot=49385639936
+		Total committed heap usage (bytes)=14132707328
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=1468439466
+	File Output Format Counters 
+		Bytes Written=108974
+
+
+
+
+
+
+
+
+
+
+	File System Counters
+		FILE: Number of bytes read=71971
+		FILE: Number of bytes written=6265245
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=133845
+		HDFS: Number of bytes written=281600
+		HDFS: Number of read operations=123
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=40
+	Job Counters 
+		Launched map tasks=21
+		Launched reduce tasks=20
+		Data-local map tasks=15
+		Rack-local map tasks=6
+		Total time spent by all maps in occupied slots (ms)=156817
+		Total time spent by all reduces in occupied slots (ms)=161901
+		Total time spent by all map tasks (ms)=156817
+		Total time spent by all reduce tasks (ms)=161901
+		Total vcore-milliseconds taken by all map tasks=156817
+		Total vcore-milliseconds taken by all reduce tasks=161901
+		Total megabyte-milliseconds taken by all map tasks=160580608
+		Total megabyte-milliseconds taken by all reduce tasks=165786624
+	Map-Reduce Framework
+		Map input records=8053
+		Map output records=8052
+		Map output bytes=144266
+		Map output materialized bytes=113169
+		Input split bytes=6741
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=419
+		Reduce shuffle bytes=113169
+		Reduce input records=8052
+		Reduce output records=7419
+		Spilled Records=16104
+		Shuffled Maps =420
+		Failed Shuffles=0
+		Merged Map outputs=420
+		GC time elapsed (ms)=3500
+		CPU time spent (ms)=59700
+		Physical memory (bytes) snapshot=14059474944
+		Virtual memory (bytes) snapshot=65140785152
+		Total committed heap usage (bytes)=17553162240
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=281600
+
+
+
+
+
+
+File System Counters
+		FILE: Number of bytes read=86214
+		FILE: Number of bytes written=3268255
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=284740
+		HDFS: Number of bytes written=237086
+		HDFS: Number of read operations=63
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=20
+		Launched reduce tasks=1
+		Data-local map tasks=16
+		Rack-local map tasks=4
+		Total time spent by all maps in occupied slots (ms)=153265
+		Total time spent by all reduces in occupied slots (ms)=6397
+		Total time spent by all map tasks (ms)=153265
+		Total time spent by all reduce tasks (ms)=6397
+		Total vcore-milliseconds taken by all map tasks=153265
+		Total vcore-milliseconds taken by all reduce tasks=6397
+		Total megabyte-milliseconds taken by all map tasks=156943360
+		Total megabyte-milliseconds taken by all reduce tasks=6550528
+	Map-Reduce Framework
+		Map input records=7419
+		Map output records=7419
+		Map output bytes=242559
+		Map output materialized bytes=68941
+		Input split bytes=3140
+		Combine input records=0
+		Combine output records=0
+		Reduce input groups=25
+		Reduce shuffle bytes=68941
+		Reduce input records=7419
+		Reduce output records=7419
+		Spilled Records=14838
+		Shuffled Maps =20
+		Failed Shuffles=0
+		Merged Map outputs=20
+		GC time elapsed (ms)=1258
+		CPU time spent (ms)=27080
+		Physical memory (bytes) snapshot=9463611392
+		Virtual memory (bytes) snapshot=33329004544
+		Total committed heap usage (bytes)=11093409792
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters 
+		Bytes Read=281600
+	File Output Format Counters 
+		Bytes Written=237086
+
