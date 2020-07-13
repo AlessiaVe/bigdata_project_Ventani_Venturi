@@ -7,7 +7,6 @@ import org.apache.hadoop.io.WritableComparable;
 
 /**
  * Composite key formed by a Natural Key (district) and Secondary Keys (count).
- * example of input 031-RECKLESS CONDUCT	1
  *
  */
 public class CompositeKey implements WritableComparable<CompositeKey> {

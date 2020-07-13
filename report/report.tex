@@ -12,7 +12,7 @@
 
 \author{
 	Alessia Ventani - Mat. 901809\\
-	Simone Venturi - Mat. }
+	Simone Venturi - Mat. 907547}
 	
 \date{\today}
 
@@ -23,70 +23,21 @@
 \tableofcontents
 
 \newpage
-
-\section{Teachers' notes}
-
-The goal of the project is to assess the students' skills in writing jobs of low/medium complexity and to correctly reason about the jobs' performances. The projects must be agreed with the teachers (do not start without explicit consent) and it consists of:
-
-\begin{itemize}
-\item finding a complex-enough dataset: about 1GB, possibly consisting of more tables;
-\item loading the dataset on HDFS/Hive;
-\item implement an analytical job in both MapReduce and Spark;
-\item writing a short report to describe it.
-\end{itemize}
-
-To deliver the project, each group must {\bf send by email to both teacher the link to their repository}. The repository must:
-\begin{itemize}
-\item be created from the individual assignment available on the Github classroom;
-\item contain a {\sf report} folder with the PDF of the final report (based on this template). The report can be written in either Italian/English and Latex/Word at your discretion. Be concise and go straight to the point: an excessively verbose report is a waste of time for you and for the teachers;
-\item contain a {\sf README.md} file with the instruction to run the jobs. Indeed, the teachers must be able to clone the repository and run the jobs from their accounts on the cluster. This means that the dataset must be accessible on HDFS/Hive and the code must compile and run correctly. Please make the jobs repeatable (i.e., the job checks and possibly deletes old data to avoid errors when re-running the code).
-\end{itemize}
-
-This guide is based on the ``MapReduce+Spark'' kind of project. However, we remind that a different kind of project may be agreed upon.
-\\
-
-The evaluation will be based on the following.
-\begin{itemize}
-\item Compliance of the jobs with the agreed upon specifications.
-\item Compliance of the report with this guide.
-\item Job correctness.
-\item Correct reasoning about optimizations.
-\end{itemize}
-
-Appreciated aspects.
-\begin{itemize}
-\item Code cleanliness and comments.
-\item Further considerations in terms of job scalability and extensibility.
-\end{itemize}
-
-
-
 \section{Introduzione}
 \subsection{Descrizione del dataset}
-
-Please provide:
-\begin{itemize}
-\item A brief description of the dataset.
-\item The link to the website publishing the dataset (e.g., \url{https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page}).
-\item Direct links to the downloaded files, especially if more than one files are available in the previous link (e.g., \url{https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2017-01.csv}).
-\end{itemize}
-
-Per questo elaborato si è deciso di utilizzare gli open data che la città di Chicagoha reso accessibili on-line dal suo sito. 
+Per questo elaborato si è deciso di utilizzare gli open data che la città di Chicago ha reso accessibili on-line dal suo sito. 
 Fra i vari dataset presenti, ci si è concentrati su quello riportante i crimini commessi nella città Chicago dal 2001 ad oggi, aggiornati 
 a sette giorni precedenti la data del download. I dati sono estratti dal CLEAR, acronimo di \textit{"Citizen Law Enforcement Analysis and Reporting"}, del dipartimento di polizia della città. Per motivi ovvi di privacy, i nomi propri sono omessi e gli indirizzi non riconducono 
-ad una specifica posizione geografica ma ad un'area, più o meno grande in base al grado di granularità del campo, della città. \\
+ad una specifica posizione geografica ma ad un'area, più o meno grande in base al grado di granularità del campo scelto per l'ubicazione geografica. \\
 I dati utilizzati sono scaricabili ai seguenti link:
 \begin{itemize}
 \item elenco dei crimini registrati: \url{https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2}
-\item elenco dei codici univoci di report dei crimini dello stato dell'Illinois: \url{https://data.cityofchicago.org/Public-Safety/Chicago-Police-Department-Illinois-Uniform-Crime-R/c7ck-438e} 
+\item elenco dei codici univoci di report dei crimini dello stato dell'Illinois: \\ \url{https://data.cityofchicago.org/Public-Safety/}\\ \url{
+ Chicago-Police-Department-Illinois-Uniform-Crime-R/c7ck-438e} 
 \end{itemize}
 Dai questi è possibile scaricare i dati premendo sul tasto Export e scegliendo il formato "CSV Excel for Europe".
  
 \subsubsection{Descrizione dei file}
-
-For each file, briefly indicated the available data and the fields used for the analyses; examples are welcome.
-
-
 L'analisi si basa sull'utilizzo di un unico file csv di partenza con i dati dei crimini registrati a Chicago.
 Nella tabella sono presenti 22 colonne che riportano informazioni di varie categorie: i dettagli sulla tipologia di reato, la sua collocazione temporale e spaziale (comprese le coordinate), se è stato effettuato un arresto o meno e se il crimine è avvenuto in casa o meno. Di queste colonne sono stati considerati solo alcuni campi.\\
 Per il primo job sono stati utilizzati:
@@ -103,23 +54,17 @@ Per la seconda elaborazione ci si è concentrati su:
 \item Year: anno in cui è avvenuto il crimine.
 \end{itemize}
 
-Un esempio di dati riportati è:\\
+Un esempio dei dati utilizzati è:\\
 IUCR Description District Arrest Year \\
 0460   SIMPLE      006    False  2020
 
 
 
 \section{Preparazione dei dati}
-Please provide:
-\begin{itemize}
-\item The paths to each file on HDFS and/or its corresponding location in Hive (database and table); consider relying on the structured data lake organization.
-\item A subsection with details on the pre-processing of the data (only necessary if the data is dirty and/or it contains a significant amount of useless information).
-\end{itemize}
-
 I dati considerati non hanno avuto bisogno di operazioni di pre-elaborazione complesse data la loro struttura iniziale a tabella. Si noti però che all'interno del dataset, essendo compilato manualmente, potrebbero esserci degli errori accidentali o omissioni di dati ma questo non costituisce un grosso problema per le elaborazioni che si intendono eseguire. \\
 
-Per poter effettuare dei confronti nel primo job, vedi descrizione nella sezione successiva, sono state preparate due versioni del file inziale.
-La prima costituisce il file scaricato dal sito nella sua versione integrale (\url{user/aventani/progetto_ventani/2/Crimes_-_2001_to_present.csv}) mentre per la seconda si è deciso di dividere quest'ultimo in due:
+Per poter effettuare delle valutazioni sulle performance nel primo job, vedi descrizione nella sezione successiva, sono state preparate due versioni del file inziale.
+La prima costituisce il file scaricato dal sito nella sua versione integrale (\url{user/aventani/progetto_ventani/2/Crimes_-_2001_to_present.csv}) mentre per la seconda, si è deciso di dividere quest'ultimo in due:
 \begin{itemize}
 \item una prima tabella comprendente tutti i campi ad eccezione di "Primary Type" e "Description" \\ \url{user/aventani/progetto_ventani/2/Crimes-2001-to-present-without-description.csv}. Per ottenere questo file è stato fatto eseguire il seguente codice spark:
 \begin{lstlisting}
@@ -135,16 +80,10 @@ spark.read.format("csv")
 
 \end{lstlisting}
 
-\item una seconda riportante i campi "IUCR","Primary Type" e "Description", \\ \url{user/aventani/progetto_ventani/2/Chicago_Police_Department_Illinois_Uniform_Crime_Reporting_IUCR.csv}. In questo caso non è stato necessario elaborare il file di partenza, ma è stato semplicemente scaricato l'elenco dei codici univoci di report dei crimini dello stato dell'Illinois.Unico problema riscontrato per il confronto dei dati è stato l'assenza in alcuni codice IUCR dello zero iniziare. Si è resa necessaria, quindi per farli coincidere con quelli presenti nella prima tabella, l'aggiunta di questa cifra, operazione effettuata manualmente dato il basso numero di record con questa caratteristica. 
+\item una seconda riportante i campi "IUCR","Primary Type" e "Description", \\ \url{user/aventani/progetto_ventani/2/Chicago_Police_Department_Illinois_Uniform_Crime_Reporting_IUCR.csv}. In questo caso non è stato necessario elaborare il file di partenza, ma è stato semplicemente scaricato l'elenco dei codici univoci di report dei crimini dello stato dell'Illinois. Unico problema riscontrato per il confronto dei dati è stato l'assenza in alcuni codice IUCR dello zero iniziare. Si è resa necessaria, quindi per farli coincidere con quelli presenti nella prima tabella, l'aggiunta di questa cifra, operazione effettuata manualmente dato il basso numero di record con questa caratteristica. 
 \end{itemize}
 
 Come formato si è deciso di caricare il file csv e utilizzare come separatore il punto e virgola, \textit{";"}, per poter distinguere il simbolo di separazione delle colonne da eventuali virgole presenti nelle descrizioni dei crimini.
-
-\begin{itemize}
-\item The paths to each file on HDFS and/or its corresponding location in Hive (database and table); consider relying on the structured data lake organization.
-\item A subsection with details on the pre-processing of the data (only necessary if the data is dirty and/or it contains a significant amount of useless information).
-\end{itemize}
-
 
 \section{I Job}
 
@@ -161,12 +100,12 @@ Lo scopo di questo job è quello di restituire la lista del crimini, raggruppati
 002	SIMPLE 28368
 ...
 \end{lstlisting}
-Dove il primo codice rappresenta il codice univoco del distretto del polizia dove è stato registrato il crimine, colonna District, la seconda parte rappresenta una breve descrizione, colonna Description, e l'ultimo numero è il totale dei crimini avvenuti in quel distretto e con quella descrizione presenti nel database.
+In questi, il primo codice rappresenta il codice univoco del distretto del polizia dove è stato registrato il crimine, colonna District, la seconda parte rappresenta una breve descrizione, colonna Description, e l'ultimo numero è il totale dei crimini avvenuti in quel distretto e con quella descrizione presenti nel database.
 
 In questo task si è deciso di effettuare l'elaborazione in due modalità differenti. Nella prima si è deciso di mantene la tabella originale e raggruppare per IUCR e per Description, nella seconda si è divisa la tabella originale in due, come descritto nel paragrafo "Preparazione dei dati" e effettuare le operazioni sul IUCR per poi fare in un secondo momento il join con la tabella Description.\\
 L'obbiettivo di questa doppia modalità è quello di verificare se ci possa essere o meno un miglioramento delle performance con una versione rispetto all'altra nei due paradigmi utilizzati.
 
-I file eseguibili per questo job, una volta compilato con gradlew, è nel jar BDE-mr-Ventani-Venturi.jar. 
+I file eseguibili per questo job, una volta compilato con gradlew, è nel jar BDE-mr-Ventani-Venturi.jar, per MapReduce, mentre in BDE-spark-Ventani-Venturi.jar per la versione in spark. 
 
 
 \subsubsection{MapReduce}
@@ -183,7 +122,7 @@ Di seguito una breve descrizione le fasi principali:
 \begin{itemize}
 \item nel primo mapper il valore della chiave è costituito dalla tripla di valori District, IUCR e Description mentre il valore è un semplice uno;
 \item nel primo reducer, si sfrutta il meccanismo di partizionamento di MapReduce che fa convogliare tutti i gli elementi con la stessa chiave nel medesimo reducer e quindi è possibile effettuate la somma facilmente. Il risultato parziale ha come chiave quella composta nella fase di map e come valore il numero totale di casi;
-\item il secondo mapper crea, con i valori letti dal file di output intermedio, una chiave composta da District e il numero totale di casi e come valore inserisce il campo Description.
+\item il secondo mapper crea, con i valori letti dal file di output intermedio, una chiave composta da District e il numero totale di casi e come valore inserisce il campo Description;
 \item attraverso l'utilizzo di un partizionatore e di un comparatore per la chiave composta, gli elementi vengono ordinati prima per distretto di appartenenza e poi, per ognuno di essi, per numero decrescente di casi totali;
 \item al secondo reducer gli elementi arrivano già ordinati e quindi è possibile emettere il risultato finale nella forma che si ritiene più conforme, in questo caso: "District, Description e Numero totale di casi."
 \end{itemize}
@@ -195,7 +134,7 @@ Per questo job, come detto in precedenza, sono state provare due versioni. La se
 L'implementazione di questa modalità ha richiesto l'introduzione di un terza fase di MapReduce che effettua il join fra le due tabelle mentre  le fasi restanti rimango per lo più inalterate. Per effettuare il join si ha bisogno di due mapper, uno che prenda i dati necessari dal file 
 Crimes-2001-to-present-without-description.csv e uno che legga da Chicago-Police-Department-Illinois-Uniform-Crime-Reporting-IUCR.csv, descritti precedentemente. La chiave per i due mapper deve essere al chiave di join e quindi lo IUCR. Nella fase di reducer si dividono i valori che posseggono la stessa chiave in base al file di provenienza, questa operazione è effettuata semplicemente mettendo un prefisso durante il mapping, e viene infine creato il risultato voluto. \\
 Con l'inserimento di una terza fase di MapReduce, le performance del job calano e i tempi di esecuzione passano a circa 3 minuti, 2.45 minuti.
-Anche questo risultato non deve sorprendere poichè l'introduzione del join rende necessario un ulteriore file intermedio e la lettura da due file di input. Questo provoca un rallentamento per i continui accessi su disco tipici di questo paradigma. Quindi si può concludere che il vantaggio che si può ottenere elaborando un campo più corto viene annullato dall'overhead per la scrittura e la lettura su diversi file.
+Anche questo risultato non deve sorprendere poichè l'introduzione del join rende necessario un ulteriore file intermedio e la lettura da due file di input. Questo provoca un rallentamento per i continui accessi su disco tipici di questo paradigma. Quindi si può concludere che il vantaggio che si può ottenere elaborando un campo più corto viene annullato dall'overhead per la gestione di un ulteriore job.
 Di seguito si riporta il comando per l'esecuzione del job con il join contenuto nella classe CrimesCountDistrictJoin:
 \begin{lstlisting}
 hadoop jar BDE-mr-Ventani-Venturi.jar CrimesCountDistrictJoin 
@@ -223,27 +162,73 @@ yarn logs -applicationId application_1583679666662_3994
 yarn logs -applicationId application_1583679666662_3995
 \end{lstlisting}
 \end{itemize}
-Le risorse utilizzate sono state riportate nei file count_crimes_no_join e count_crimes_join presenti nella cartella /mapreduce/log del progetto.
+Le risorse utilizzate sono state riportate nei file count\_crimes\_no\_join e count\_crimes\_join presenti nella cartella \/mapreduce\/log del progetto.
 
 \subsubsection{Spark}
-L'implementazione di questo job in MapReduce è stata eseguita da Simone Venturi.
-Please provide:
+\subsubsection{Spark}
+L’implementazione di questo job in Spark è stata eseguita da Simone Venturi. Il codice è contenuto nei file CountCrimesWithJoin e CountCrimesWithoutJoin i quali possono essere eseguiti tramite i comandi:
 \begin{itemize}
-\item Input and output files/tables.
-\item Execution time and amount of resources.
-\item Direct links to the application's history on YARN (e.g., \url{http://isi-vclust0.csr.unibo.it:18088/history/application_15...}).
-\item Description of the implementation. A schematic and concise discussion is preferrable to a verbose narrative. Focus on how the data is manipulated in the job (e.g., what do keys and values represent across the different stages, what operations are carried out). 
-\item Performance considerations with respect the (potentially) carried out optimizations, e.g., in terms of:
+\item
+\begin{lstlisting}
+spark2-submit --class CountCrimesWithoutJoin
+bigdata/BDE-spark-Ventani-Venturi.jar
+\end{lstlisting}
+utilizzando come input di deafult: /user/sventuri/Crimes-2001-to-present-nocomma.csv
+e come outuput: /user/sventuri/Count-Crimes-2001-to-Present
+altrimenti si possono specificare input e output aggiungendoli come paramentri, ad esempio: 
+\begin{lstlisting}
+spark2-submit --class CountCrimesWithoutJoin 
+bigdata/BDE-spark-Ventani-Venturi.jar
+"/user/sventuri/Crimes-2001-to-present-nocomma.csv" 
+"/user/sventuri/Count-Crimes-2001-to-Present"	
+\end{lstlisting}
+L’input è costituito da un file contenente l’intera tabella dei crimini senza alcuna elaborazione
+\item
+\begin{lstlisting}
+spark2-submit --class CountCrimesWithJoin 
+bigdata/BDE-spark-Ventani-Venturi.jar
+\end{lstlisting}
+utilizzando come input di deafult: 
+/user/sventuri/Crimes-2001-to-present-withoutDescription.csv 
+/user/sventuri/Chicago-Police-Department-Illinois-Uniform-Crime-Reporting-IUCR-Codes-nocomma.csv
+e come output: /user/sventuri/Count-Crimes-2001-to-Present-WithJoin
+altrimenti si possono specificare input e output tramite parametrizzazione, ovvero:
+\begin{lstlisting}
+spark2-submit --class CountCrimesWithJoin 
+bigdata/BDE-spark-Ventani-Venturi.jar 
+"/user/sventuri/Crimes-2001-to-present-withoutDescription.csv" 
+"/user/sventuri/Chicago-Police-Department-Illinois-
+Uniform-Crime-Reporting-IUCR-Codes-nocomma.csv" 
+"/user/sventuri/Count-Crimes-2001-to-Present-WithJoin"
+\end{lstlisting}
+L’input è costituito da un file contenente la tabella dei crimini senza le colonne Primary Type e Description e da un file contenente le tipologie di crimine con le descrizioni.
+L’output invece è costituito da un file csv con simbolo di separazione “;” che contiene le colonne “District”,”Description” e “Count” ed è accessibile al percorso specificato come terzo parametro, se specificato, oppure al percorso di default /user/sventuri/Count-Crimes-2001-to-Present-WithJoin.
+\end{itemize}
+L’elaborazione senza join è composta dalle seguenti fasi:
 \begin{itemize}
-\item allocated resources and tasks;
-\item enforced partitioning;
-\item data caching;
-\item combiner usage;
-\item broadcast variables usage;
-\item any other kind of optimization.
+\item nel primo stage, l’input viene letto e vengono conservate solamente le colonne d’interesse in un dataframe. Successivamente su questo viene effettuato un raggruppamento per record simili e su questo viene eseguito un conteggio di linee in modo tale da poter ricavare quanti crimini dello stesso tipo siano stati commessi nel medesimo distretto.
+\item nel secondo stage viene salvato il risultato in memoria secondaria.	
 \end{itemize}
-\item Short extract of the output and discussion (i.e., whether there is any relevant insight obtained).
+L’elaborazione con join prevede l’aggiunta della lettura della tabella contenente le tipologie di crimine con le relative descrizioni, questa viene joinata alla tabella contenenti le rilevazioni dei crimini di Chigago con un left outer join in fase finale poco prima di salvare il risultato su memoria secondaria.
+Le elaborazioni impiegano: 1.6 minuti (la versione senza join) e 1.8 minuti (la versione con join).
+Al fine di migliorare le performance, sono stati eseguiti questi jobs con diversi parametri:
+\begin{itemize}
+\item numero di executors: default, 20, 40;
+\item numero di CPU: 6, 20.
 \end{itemize}
+Inoltre, al fine di migliorare le performance, è stata testata anche una versione di programma con il join nella quale la tabella con le tipologie di crimine (ha dimensioni notevolmente ridotte) era conservata come una variabile broadcast. Questa versione, dalla quale mi aspettavo una performance migliore, ha deluso le aspettative poiché ha richiesto 2 minuti anziché 1.8 della versione classica con join.
+
+Per visualizzare i dettagli dell’esecuzione senza join:
+\begin{lstlisting}
+hdfs dfs -cat /user/spark/spark2ApplicationHistory/
+application_1583679666662_4332
+\end{lstlisting}
+Per visualizzare i dettagli dell’esecuzione con join:
+\begin{lstlisting}
+hdfs dfs -cat /user/spark/spark2ApplicationHistory/
+application_1583679666662_4331
+\end{lstlisting}
+
 
 \subsection{Job \#2: conteggio della percentuale di crimini con arresti}
 Lo scopo del secondo job è il calcolo della percentuale dei crimini in cui è stato effettuato un arresto rispetto al totale. In questo caso i crimini sono raggruppati per tipologia e per anno di registrazione.
@@ -257,28 +242,39 @@ Il risultato finale in questo caso è:
 ...
 \end{lstlisting}
 Dove il primo numero rappresenta ovviamente l'anno di avvenimento del crimine, il secondo la descrizione, campo Description, il terzo una percentuale calcolata come
-\sfrac{\text{numero totale crimini del gruppo con campo Arrest == True}}{\text{numero totale crimini del gruppo}} .
+\sfrac{\text{numero totale crimini del gruppo con campo Arrest == True}}{\text{numero totale crimini del gruppo}}
 
-Il file eseguibile per questo job, una volta compilato con gradlew, è nel jar BDE-spark-Ventani-Venturi.jar. 
+Il file eseguibile per questo job, una volta compilato con gradlew, è nel jar BDE-mr-Ventani-Venturi.jar, per MapReduce, mentre in BDE-spark-Ventani-Venturi.jar per la versione in spark. 
 
 \subsubsection{MapReduce}
 L'implementazione di questo job in MapReduce è stata eseguita da Simone Venturi.
-Please provide:
+Il codice prodotto col paradigma MapReduce, presente nella classe PercentageArrested, può essere eseguito, dopo essere stato compilato, con il seguente comando:
+\begin{lstlisting}
+hadoop jar BDE-mr-Ventani-Venturi.jar 
+second_job.ArrestedPercentage 
+Crimes-2001-to-present-nocomma.csv 
+/user/sventuri/crimespercentageordered/first-output 
+/user/sventuri/crimespercentageordered/partitions 
+/user/sventuri/crimespercentageordered/output
+\end{lstlisting}
+I parametri necessari all’esecuzione sono quattro: il file di input Crimes-2001-to-present-nocomma.csv che, come detto in precedenza, rappresenta la tabella completa dei crimini dal 2001 ad oggi della città ci Chicago; i percorsi che costituiscono i parametri 2, 3 e 4 del comando sono i due file di output e il file per le partizioni: il primo contiene il risultato intermedio della percentuale di arresti di un determinato crimine per ogni anno, il secondo contiene la codifica delle partizioni utili per l’ordinamento, mentre il terzo è il risultato finale del job.
+Per ottenere il risultato voluto, si è deciso di dividere la computazione in due job di MapReduce. Nella prima si effettua il conteggio della percentuale di arresti per crimine per ogni anno, successivamente, nella seconda si ordina il risultato ottenuto in ordine crescente per anno e si sistema l’output.
+Di seguito una breve descrizione le fasi principali:
 \begin{itemize}
-\item Performance considerations with respect the (potentially) carried out optimizations, e.g., in terms of:
-\begin{itemize}
-\item allocated resources and tasks;
-\item enforced partitioning;
-\item data caching;
-\item combiner usage;
-\item broadcast variables usage;
-\item any other kind of optimization.
+\item dopo il primo mapper il valore della chiave è costituito dalla coppia di valori Year, IUCR mentre il valore è il boolean che contiene l’informazione relativa all’arresto; 
+\item nel primo reducer, viene eseguito il calcolo della percentuale. Il risultato parziale ha come chiave quella composta nella fase di map e come valore la percentuale di arresti;
+\item il secondo mapper crea, con i valori letti dal file di output intermedio, una chiave composta da Year e come valore inserisce il campo IUCR e percentuale di arresti. 
+\item attraverso l’utilizzo di un partizionatore, il TotalOrderPartitioner, gli elementi vengono suddivisi ordinati per la chiave;
+\item al secondo reducer gli elementi arrivano già ordinati e quindi è possibile emettere il risultato finale nella forma che si ritiene più conforme, in questo caso: "Year, IUCR e percentuale di arresti".
 \end{itemize}
-\item Short extract of the output and discussion (i.e., whether there is any relevant insight obtained).
-\end{itemize}
+Al fine di migliorare i tempi di esecuzione, nel secondo job, è stato utilizzato come partitioner il TotalOrderPartitioner in modo tale da poter utilizzare più reducer anziché far eseguire tutta la computazione ad un recuder solo. Utilizzando questi accorgimenti il tempo di esecuzione del task è inferiore a 2 minuti.
+Per visualizzare il log, eseguire:
+\begin{lstlisting}
+yarn logs -applicationId application_1583679666662_4333
+\end{lstlisting}
 
 \subsubsection{Spark}
-L'implementazione di questo job in MapReduce è stata eseguita da Alessia Ventani e il codice è contenuto nel file PercentageArrestedCrimes.
+L'implementazione di questo job in Spark è stata eseguita da Alessia Ventani e il codice è contenuto nel file PercentageArrestedCrimes.
 Il comando per provare ad eseguire l'elaborazione è:
 \begin{lstlisting}
 spark2-submit --class PercentageArrestedCrimes 
@@ -307,7 +303,8 @@ Dalle prove effettuate, si è potuto osservare che il tempo di esecuzione effett
 
 Il log di questa elaborazione può essere consultato eseguendo il seguente comando:
 \begin{lstlisting}
-hdfs dfs -cat /user/spark/spark2ApplicationHistory/application_1583679666662_3996
+hdfs dfs -cat /user/spark/spark2ApplicationHistory/
+application_1583679666662_3996
 \end{lstlisting}
 % per le risorse prendi il DAG da interfaccia grafica
 
@@ -321,6 +318,6 @@ Da questa operazione è stato possibile osservare alcuni andamenti dei dati nei 
 \item nel primo job: il conteggio di tipi specifici di crimini è ovviamente molto più alto di tutti gli altri, come per esempio i crimini con multa minore di 500 dollari che ovviamente risultano più frequenti;
 \item nel secondo job: alcune categorie di crimini hanno un'alta percentuale di casi con arresti mentre altri pari a zero. Questo è spiegabile dalla tipologia di caso. Per esempio i crimini con 300 dollari, che prevedono una ammenda e non una incarcerazione, hanno una percentuale pari a zero mentre altri invece hanno una percentuale molto alta, come il crimine di possesso illegale di armi con attacco ad una persona.
 \end{itemize}
-Visualizzare con grafici i dati ottenuto è stato utile al fine di avere un colpo d'occhio globale e rilevare delle peculiarità che aprono la porta a possibili ulteriori elaborazioni
+Visualizzare con grafici i dati ottenuto è stato utile al fine di avere un colpo d'occhio globale e rilevare delle peculiarità che aprono la porta a possibili ulteriori elaborazioni.
 
 \end{document}
