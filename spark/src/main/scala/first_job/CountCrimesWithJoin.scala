@@ -46,13 +46,27 @@ object CountCrimesWithJoin extends App {
       .option("mode", "DROPMALFORMED")
       .load(iucrFile)
       .select("IUCR","Secondary Description")
-    val bdfIUCR = spark.sparkContext.broadcast(dfIUCR)
 
+    //versione broadcast
+
+    /*val bdfIUCR = spark.sparkContext.broadcast(dfIUCR)
     dfwD
       .groupBy("IUCR","District")
       .count()
       .orderBy(asc("District"), desc("count"))
       .join(bdfIUCR.value, dfwD("IUCR") <= dfIUCR("IUCR"))
+      .drop("IUCR")
+      //.coalesce(1)
+      .write.format("csv")
+      .option("sep", ";")
+      .save(outputFile)*/
+
+    //versione no broadcast
+    dfwD
+      .groupBy("IUCR","District")
+      .count()
+      .orderBy(asc("District"), desc("count"))
+      .join(dfIUCR, dfwD("IUCR") === dfIUCR("IUCR"), "left_outer")
       .drop("IUCR")
       //.coalesce(1)
       .write.format("csv")
