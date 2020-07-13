@@ -3,6 +3,10 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.functions.{col, round, asc, avg, when}
 
+
+/**
+  * Application return tuple "Year", "Description", "Percentage crimes with arrest" ordered by Year (asc).
+  */
 object PercentageArrestedCrimes extends App {
 
   override def main(args: Array[String]): Unit = {

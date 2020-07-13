@@ -27,7 +27,10 @@ import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 public class CrimesCountDistrictJoin {
 
 
-	// FIRST JOB: COUNT OF CRIMES BY DISTRICT
+	/**
+	 * 	FIRST JOB: COUNT OF CRIMES BY DISTRICT
+	 * 	first mapper crete the key for counting grup by District, IUCR and Description
+	 */
 	public static class TokenizerMapper
 			extends Mapper<Object, Text, Text, IntWritable> {
 
@@ -51,7 +54,9 @@ public class CrimesCountDistrictJoin {
 	}
 
 
-	// FIRST REDUCER
+	/**
+	 * FIrst reducer sum teh total for each group
+	 * */
 	public static class IntSumReducer
 			extends Reducer<Text,IntWritable,Text,IntWritable> {
 		private IntWritable result = new IntWritable();
@@ -69,7 +74,10 @@ public class CrimesCountDistrictJoin {
 		}
 	}
 
-	// JOIN WITH THE TABLE OF IURC
+	/**
+	 * JOIN JOB
+	 * mapper for the table of IUCR and count
+	 */
 	public static class FirstMapperJoin
 			extends Mapper<Object, Text, Text, Text>{
 
@@ -87,7 +95,10 @@ public class CrimesCountDistrictJoin {
 
 	}
 
-	// MAPPER FOR THE TABLE OF IURC
+	/**
+	 * JOIN JOB
+	 * mapper for the table of the IUCR Description
+	 */
 	public static class SecondMapperJoin
 			extends Mapper<Object, Text, Text, Text>{
 
@@ -111,7 +122,9 @@ public class CrimesCountDistrictJoin {
 
 	}
 
-	// JOIN REDUCER
+	/**
+	 * reducer controls the origin of data and make build the result
+	 */
 	public static class JoinReducer
 			extends Reducer<Text,Text,Text,Text> {
 
@@ -147,7 +160,10 @@ public class CrimesCountDistrictJoin {
 	}
 
 
-	// SECOND JOB: ORDER BY DISCRICT (ASC) AND CRIMES FOR TOTAL NUMBER (DESC)
+	/**
+	 * SECOND JOB: ORDER BY DISCRICT (ASC) AND CRIMES FOR TOTAL NUMBER (DESC)
+	 * second mapper create the composite key for the order (DISTRICT, COUNT)
+	 */
 	public static class CompositeKeyCreationMapper extends Mapper<Object, Text, CompositeKey, Text> {
 
 		private CompositeKey compositeKey = new CompositeKey();
@@ -164,7 +180,9 @@ public class CrimesCountDistrictJoin {
 
 	}
 
-	// SECOND REDUCER
+	/**
+	 * second reducer make the result
+	 */
 	public static class ValueOutputReducer extends Reducer<CompositeKey, Text, Text, Text> {
 
 		private Text outputKey = new Text();
@@ -174,8 +192,8 @@ public class CrimesCountDistrictJoin {
 		public void reduce(CompositeKey key, Iterable<Text> descriptions, Context context) throws IOException, InterruptedException {
 
 			for (Text description : descriptions){
-				outputKey.set(key.district+"@");
-				outputValue.set(description+"@"+key.count);
+				outputKey.set(key.district+";");
+				outputValue.set(description+";"+key.count);
 				context.write(outputKey, outputValue);
 			}
 		}

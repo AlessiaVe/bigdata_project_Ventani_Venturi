@@ -1,6 +1,10 @@
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
+
+/**
+ * class for comporator the natural key
+ */
 public class NaturalKeyComparator extends WritableComparator {
 
     public NaturalKeyComparator() {

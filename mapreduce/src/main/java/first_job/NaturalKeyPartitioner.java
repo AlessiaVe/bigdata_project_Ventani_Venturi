@@ -2,6 +2,10 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
+
+/**
+ * class of teh partioner
+ */
 public class NaturalKeyPartitioner extends Partitioner<CompositeKey, Text> {
 
     @Override

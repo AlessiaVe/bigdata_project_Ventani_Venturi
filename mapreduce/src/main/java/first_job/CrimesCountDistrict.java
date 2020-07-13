@@ -25,7 +25,10 @@ import com.opencsv.exceptions.CsvValidationException;
 
 public class CrimesCountDistrict {
 
-	// FIRST JOB: COUNT OF CRIMES BY DISTRICT
+	/**
+	 * 	FIRST JOB: COUNT OF CRIMES BY DISTRICT
+	 * 	first mapper crete the key for counting grup by District, IUCR and Description
+ 	 */
 	public static class TokenizerMapper
 			extends Mapper<Object, Text, Text, IntWritable> {
 
@@ -49,7 +52,9 @@ public class CrimesCountDistrict {
 	}
 
 
-	// FIRST REDUCER
+	/**
+	 * First reducer sum teh total for each group
+	 * */
 	public static class IntSumReducer
 			extends Reducer<Text,IntWritable,Text,IntWritable> {
 		private IntWritable result = new IntWritable();
@@ -66,7 +71,10 @@ public class CrimesCountDistrict {
 		}
 	}
 
-	// SECOND JOB: ORDER BY DISCRICT (ASC) AND CRIMES FOR TOTAL NUMBER (DESC)
+	/**
+	 * SECOND JOB: ORDER BY DISCRICT (ASC) AND CRIMES FOR TOTAL NUMBER (DESC)
+	 * second mapper create the composite key for the order (DISTRICT, COUNT)
+	 */
 	public static class CompositeKeyCreationMapper extends Mapper<Object, Text, CompositeKey, Text> {
 
 		private CompositeKey compositeKey = new CompositeKey();
@@ -81,7 +89,9 @@ public class CrimesCountDistrict {
 
 	}
 
-	// SECOND REDUCER
+	/**
+	 * second reducer make the result
+	 */
 	public static class ValueOutputReducer extends Reducer<CompositeKey, Text, Text, Text> {
 
 		private Text outputKey = new Text();
@@ -91,8 +101,8 @@ public class CrimesCountDistrict {
 		public void reduce(CompositeKey key, Iterable<Text> descriptions, Context context) throws IOException, InterruptedException {
 
 			for (Text description : descriptions) {
-				outputKey.set(key.district+"@");
-				outputValue.set(description+"@"+key.count);
+				outputKey.set(key.district+";");
+				outputValue.set(description+";"+key.count);
 				context.write(outputKey, outputValue);
 			}
 		}

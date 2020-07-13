@@ -1,6 +1,9 @@
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
+/**
+ * class for comporator the composite key
+ */
 public class FullKeyComparator extends WritableComparator {
 
     public FullKeyComparator() {
@@ -18,6 +21,7 @@ public class FullKeyComparator extends WritableComparator {
         if (districtCmp != 0) {
             return districtCmp;
         } else {
+            // descending order
             return -1 * Integer.compare(key1.count, key2.count);
         }
 

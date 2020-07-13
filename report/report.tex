@@ -113,8 +113,8 @@ L'implementazione di questo job in MapReduce è stata eseguita da Alessia Ventan
 Il codice prodotto nel paradigma MapReduce, presente nella classe CrimesCountDistrict, può essere eseguito, dopo essere stato compilato, con il seguente comando:
 \begin{lstlisting}
 hadoop jar BDE-mr-Ventani-Venturi.jar CrimesCountDistrict 
-Crimes_-_2001_to_present.csv output-conteggio  
-output-count-no-join
+/user/aventani/progetto_ventani/2/Crimes_-_2001_to_present.csv  
+output-conteggio  output-count-no-join
 \end{lstlisting}
 Da questo è possibile visualizzare in un solo colpo i file che costituisco l'input e l'output di questo job. L'unico file di input è CrimesCountDistrictCrimes\_-\_2001\_to\_present.csv che, come detto in precedenza, rappresenta la tabella completa dei crimini dal 2001 ad oggi della città ci Chicago. I percorsi che costituiscono i parametri 1 e 2 del comando sono i due file di output: il primo contiene il risultato intermedio della conta del numero totale di crimini commessi in un distretto e di un determinato tipo, il secondo è il risultato finale del job e quindi il risultato è osservabile al percorso \url{user/aventani/progetto_ventani/output-count-no-join}.
 Per ottenere il risultato voluto, si è deciso di dividere la computazione in due fasi di MapReduce. Nella prima si effettua il conteggio del totale del numero di crimini di una determinata tipologia in un distretto, successivamente, nella seconda si ordina il risultato ottenuto in ordine crescente per il codice del distretto e in ordine decrescente per numero totale di crimini.
@@ -152,19 +152,18 @@ I file con i log di esecuzione di YARN, per le due versioni, possono essere anal
 \begin{itemize}
 \item per l'elaborazione senza join: 
 \begin{lstlisting}
-yarn logs -applicationId application_1583679666662_3991
-yarn logs -applicationId application_1583679666662_3992
+yarn logs -applicationId application_1583679666662_4434
+yarn logs -applicationId application_1583679666662_4435
 \end{lstlisting}
 \item per l'elaborazione con join:
 \begin{lstlisting}
-yarn logs -applicationId application_1583679666662_3993
-yarn logs -applicationId application_1583679666662_3994
-yarn logs -applicationId application_1583679666662_3995
+yarn logs -applicationId application_1583679666662_4436
+yarn logs -applicationId application_1583679666662_4437
+yarn logs -applicationId application_1583679666662_4438
 \end{lstlisting}
 \end{itemize}
 Le risorse utilizzate sono state riportate nei file count\_crimes\_no\_join e count\_crimes\_join presenti nella cartella \/mapreduce\/log del progetto.
 
-\subsubsection{Spark}
 \subsubsection{Spark}
 L’implementazione di questo job in Spark è stata eseguita da Simone Venturi. Il codice è contenuto nei file CountCrimesWithJoin e CountCrimesWithoutJoin i quali possono essere eseguiti tramite i comandi:
 \begin{itemize}
@@ -294,7 +293,7 @@ L'elaborazione di compone delle seguenti fasi:
 \end{itemize}
 
 Il tempo di esecuzione di questa operazione è di circa 1.40 minuti.
-L'ottimizzazione più grossa che è stata effettuata è quella sul codice stesso. Infatti, in una prima versione, si è optato per la creazione di due data frame distinti per il calcolo della percentuale e in questa maniera si rendeva necessaria un'operazione di join che aumenta di molto i tempi. Con l'utilizzo delle operazioni di aggregazione si è rilevata una grossa diminuzione del tempo e il codice risulta più compatto e leggibile.Inoltre si sono provati i seguenti parametri:
+L'ottimizzazione più grossa che è stata effettuata è quella sul codice stesso. Infatti, in una prima versione, si è optato per la creazione di due data frame distinti per il calcolo della percentuale e in questa maniera si rendeva necessaria un'operazione di join che aumenta di molto i tempi. Con l'utilizzo delle operazioni di aggregazione si è rilevata una grossa diminuzione del tempo e il codice risulta più compatto e leggibile. Inoltre si sono provati i seguenti parametri:
 \begin{itemize}
 \item numero di executors: default, 40 e 20;
 \item numero di CPU: 6 e 20.
@@ -304,9 +303,9 @@ Dalle prove effettuate, si è potuto osservare che il tempo di esecuzione effett
 Il log di questa elaborazione può essere consultato eseguendo il seguente comando:
 \begin{lstlisting}
 hdfs dfs -cat /user/spark/spark2ApplicationHistory/
-application_1583679666662_3996
+application_1583679666662_4439
 \end{lstlisting}
-% per le risorse prendi il DAG da interfaccia grafica
+
 
 
 \section{Descrizione del risultato}
