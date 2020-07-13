@@ -20,6 +20,7 @@ object PercentageArrestedCrimes extends App {
     val outputPath = new Path(outputFile)
 
 
+    // check file
     val fileSystem = FileSystem.get(new Configuration())
     if (!fileSystem.exists(inputPath)) {
       println("Invalid input path")
