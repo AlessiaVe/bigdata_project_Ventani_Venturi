@@ -1,14 +1,11 @@
 package second_job;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -18,13 +15,13 @@ import org.apache.hadoop.mapreduce.lib.partition.InputSampler;
 import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
 
 /**
- *
+ * ArrestedPercentage class contains methods to complete the second task
  */
 public class ArrestedPercentage {
 
-
     /**
-     * First Mapper
+     * FirstMapper takes in input a file with record composed by field separated by semicolon,
+     * in output it returns (year__iucr__,arrested) like (2001__0110__,true)
      */
     public static class FirstMapper
             extends Mapper<Object, Text, Text, Text>{
@@ -35,15 +32,19 @@ public class ArrestedPercentage {
                 throws IOException, InterruptedException {
 
             String[] csv = value.toString().split(";");
-            yearAndCrimeType.set(csv[17]+"__"+csv[4]);
-
-            context.write(yearAndCrimeType, new Text(csv[8]));
+            if(!csv[17].contains("Year")) {
+                yearAndCrimeType.set(csv[17] + "__" + csv[4] + "__");
+                context.write(yearAndCrimeType, new Text(csv[8]));
+            } else {
+                return;
+            }
         }
 
     }
 
     /**
-     * First Reducer
+     * FirstReducer takes the output of FirstMapper and it calculates the arrested percentage,
+     * output is (year__iucr__,percentageArrested) like (2001__0110__,100)
      */
     public static class FirstReducer
             extends Reducer<Text, Text, Text, DoubleWritable> {
@@ -58,39 +59,41 @@ public class ArrestedPercentage {
                     tot = tot + 1;
                 }
             }
-            context.write(key, new DoubleWritable(tot / count));
+            context.write(key, new DoubleWritable(tot * 100 / count));
         }
 
     }
 
     /**
-     * Second Mapper
+     * SecondMapper starts the second mapreduce job,
+     * it maps the input year__iucr__percentageArrested into year,iucr percentageArrested like 2001,0110 100
      */
     public static class SecondMapper
-            extends Mapper<Text, DoubleWritable, IntWritable, Text>{
+            extends Mapper<Object, Text, LongWritable, Text>{
 
-        public void map(Text key, Double value, Context context)
+        public void map(Object key, Text value, Context context)
                 throws IOException, InterruptedException {
             String[] values = value.toString().split("__");
-            context.write(new IntWritable(Integer.parseInt(values[0])),new Text(values[1]+","+ value));
+            context.write(new LongWritable(Integer.parseInt(values[0])), new Text(values[1]+" "+ values[2]));
         }
 
     }
 
     /**
-     * Second Reducer
+     * SecondReducer writes the input received from SecondMapper
      */
-    /*public static class SecondReducer
-            extends Reducer<IntWritable,Text,IntWritable,Text> {
+    public static class SecondReducer
+            extends Reducer<LongWritable,Text,LongWritable,Text> {
 
-        public void reduce(IntWritable key, Iterable<Text> values, Context context)
+        public void reduce(LongWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
-            // Reducer logic
-
+            while (values.iterator().hasNext()) {
+                context.write(key, new Text(values.iterator().next().toString()));
+            }
         }
 
-    }*/
+    }
 
 
     public static void main(String[] args) throws Exception {
@@ -99,11 +102,11 @@ public class ArrestedPercentage {
         FileSystem fs = FileSystem.get(new Configuration());
         Path firstInputPath = new Path(args[0]),
                 firstOutputPath = new Path(args[1]),
-                partitionOutputPath = new Path(args[2]),
+                partitionerFile = new Path(args[2]),
                 secondOutputPath = new Path(args[3]);
 
         if (fs.exists(firstOutputPath)) {
-            fs.delete(firstOutputPath, true);
+           fs.delete(firstOutputPath, true);
         }
         if (fs.exists(secondOutputPath)) {
             fs.delete(secondOutputPath, true);
@@ -121,46 +124,46 @@ public class ArrestedPercentage {
         firstJob.setReducerClass(FirstReducer.class);
         firstJob.setOutputKeyClass(Text.class);
         firstJob.setOutputValueClass(DoubleWritable.class);
+        firstJob.setNumReduceTasks(9);
 
         // set input and output files
         FileInputFormat.addInputPath(firstJob, firstInputPath);
         FileOutputFormat.setOutputPath(firstJob, firstOutputPath);
 
-        // SECOND JOB
-        Job secondJob = Job.getInstance(new Configuration(), "Order by Year");
-        secondJob.setJarByClass(ArrestedPercentage.class);
+        int code = firstJob.waitForCompletion(true) ? 0 : 1;
 
-        // Mapper configuration
-        secondJob.setMapperClass(SecondMapper.class);
-        secondJob.setMapOutputKeyClass(Text.class);
-        secondJob.setMapOutputValueClass(Text.class);
+        if (code == 0) {
 
-        // Reducer configuration
-        //secondJob.setReducerClass(Reducer.class);
-        secondJob.setOutputKeyClass(IntWritable.class);
-        secondJob.setOutputValueClass(Text.class);
-        secondJob.setNumReduceTasks(3);
-        // Partitioning/Sorting/Grouping configuration
-        secondJob.setPartitionerClass(TotalOrderPartitioner.class);
-        TotalOrderPartitioner.setPartitionFile(secondJob.getConfiguration(), partitionOutputPath);
-        InputSampler.Sampler<Text, DoubleWritable> sampler = new InputSampler.RandomSampler<>(1,1);
-        InputSampler.writePartitionFile(secondJob, sampler);
+            // SECOND JOB
+            Job secondJob = Job.getInstance(new Configuration(), "Order by Year");
+            secondJob.setJarByClass(ArrestedPercentage.class);
 
-        // set input and output files
-        FileInputFormat.setInputPaths(secondJob, firstOutputPath);
-        FileOutputFormat.setOutputPath(secondJob, secondOutputPath);
+            // Mapper configuration
+            secondJob.setMapperClass(SecondMapper.class);
+            secondJob.setMapOutputKeyClass(LongWritable.class);
+            secondJob.setMapOutputValueClass(Text.class);
 
-        // EXECUTION OF THE TASKS
-        ArrayList<Job> jobs = new ArrayList<>();
+            // Reducer configuration
+            secondJob.setReducerClass(SecondReducer.class);
+            secondJob.setOutputKeyClass(LongWritable.class);
+            secondJob.setOutputValueClass(Text.class);
+            secondJob.setNumReduceTasks(9);
 
-        jobs.add( firstJob );
-        jobs.add( secondJob );
+            // set input and output files
+            FileInputFormat.setInputPaths(secondJob, firstOutputPath);
+            FileOutputFormat.setOutputPath(secondJob, secondOutputPath);
 
-        for (Job job: jobs) {
-            if (!job.waitForCompletion(true)) {
-                System.exit(1);
-            }
+            //create total order partitioner file
+            secondJob.setPartitionerClass(TotalOrderPartitioner.class);
+            TotalOrderPartitioner.setPartitionFile(secondJob.getConfiguration(), partitionerFile);
+            InputSampler.Sampler<Text, Text> inputSampler = new InputSampler.RandomSampler<>(0.01, 1000, 100);
+            InputSampler.writePartitionFile(secondJob, inputSampler);
+            secondJob.setPartitionerClass(TotalOrderPartitioner.class);
+            secondJob.setPartitionerClass(TotalOrderPartitioner.class);
+
+            code = secondJob.waitForCompletion(true) ? 0 : 1;
         }
+        System.exit(code);
 
     }
 }
